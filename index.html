@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lara - Yapay Zeka Çözümleri</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .grid-bg {
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+        
+        .code-container {
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            border: 1px solid #333;
+        }
+        
+        .typing-code {
+            font-family: 'Courier New', monospace;
+            color: #00ff88;
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 4s steps(40) infinite;
+        }
+        
+        @keyframes typing {
+            0%, 20% { width: 0; }
+            50%, 80% { width: 100%; }
+            100% { width: 0; }
+        }
+        
+        .glow-button {
+            transition: all 0.3s ease;
+        }
+        
+        .glow-button:hover {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .hero-text {
+            background: linear-gradient(135deg, #ffffff 0%, #e5e7eb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .chat-expand {
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .chat-fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 100;
+        }
+        
+        .chat-content {
+            max-width: 4xl;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 2rem;
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-black text-white min-h-screen overflow-x-hidden">
+    <!-- Animated Background -->
+    <div class="fixed inset-0 z-0 grid-bg">
+        <div id="stars-container"></div>
+    </div>
+    
+    <!-- Navbar -->
+    <nav class="relative z-50 bg-black/90 backdrop-blur-lg border-b border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                        <span class="text-xl font-bold text-black">AI</span>
+                    </div>
+                    <span class="text-xl font-bold text-white">Lara</span>
+                </div>
+                
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="https://trlara.github.io/squaerdssoft/" class="text-gray-300 hover:text-white transition-colors">Ana Sayfa</a>
+                </div>
+                
+                <!-- Mobile Menu Button -->
+                <button id="mobile-menu-btn" class="md:hidden text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 h-full w-64 bg-black/95 backdrop-blur-lg border-l border-gray-800 md:hidden">
+            <div class="flex flex-col p-6 space-y-6 mt-16">
+                <a href="https://trlara.github.io/squaerdssoft/" class="text-gray-300 hover:text-white transition-colors">Ana Sayfa</a>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <main class="relative z-10 min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <!-- Hero Title -->
+            <h1 class="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6 hero-text leading-tight">
+                Yapay Zeka Geleceği<br>İnşa Et
+            </h1>
+            
+            <!-- Description -->
+            <p class="text-lg sm:text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+                En gelişmiş AI teknolojileri ile işinizi dönüştürün. Makine öğrenmesi, doğal dil işleme ve derin öğrenme çözümlerimizle rekabette öne geçin.
+            </p>
+            
+            <!-- Chat Button -->
+            <button id="open-chat-btn" class="bg-dark-600 hover:bg-dark-700 px-8 py-4 rounded-lg text-white font-semibold transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/25">
+                - AI ile Sohbet Et -
+            </button>
+            
+            <!-- Fullscreen Chat -->
+            <div id="fullscreen-chat" class="chat-fullscreen hidden">
+                <div class="chat-content">
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center mr-3">
+                                <span class="text-xl font-bold text-black">AI</span>
+                            </div>
+                            <span class="text-xl font-bold text-white">Lara Chat</span>
+                        </div>
+                        <button id="close-fullscreen" class="text-gray-400 hover:text-white transition-colors">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div id="fullscreen-messages" class="flex-1 overflow-y-auto mb-6">
+                        <div class="flex justify-start mb-4 slide-up">
+                            <div class="bg-gray-700 rounded-lg p-4 max-w-md text-white">
+                                🔧 Merhaba! Sistem şu anda bakımda. Ne yazarsanız yazın bakım mesajı alacaksınız.
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-4">
+                        <input 
+                            type="text" 
+                            id="fullscreen-input"
+                            placeholder="Mesajınızı yazın..."
+                            class="flex-1 bg-gray-800 border border-gray-600 rounded-lg px-6 py-3 text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                        >
+                        <button 
+                            id="fullscreen-send"
+                            class="bg-blue-600 hover:bg-blue-700 px-6 py-3 rounded-lg transition-colors"
+                        >
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+
+        </div>
+    </main>
+    
+    <script>
+        // Create animated stars
+        function createStars() {
+            const container = document.getElementById('stars-container');
+            const starCount = 50;
+            
+            for (let i = 0; i < starCount; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+        
+        // Initialize stars
+        createStars();
+        
+        // Mobile menu functionality
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('open');
+        });
+        
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+        
+        // Chat functionality
+        const fullscreenChat = document.getElementById('fullscreen-chat');
+        const fullscreenMessages = document.getElementById('fullscreen-messages');
+        const fullscreenInput = document.getElementById('fullscreen-input');
+        const fullscreenSend = document.getElementById('fullscreen-send');
+        const closeFullscreen = document.getElementById('close-fullscreen');
+        
+        let isFullscreen = false;
+        
+
+        
+        // Open fullscreen chat on button click
+        const openChatBtn = document.getElementById('open-chat-btn');
+        openChatBtn.addEventListener('click', () => {
+            isFullscreen = true;
+            fullscreenChat.classList.remove('hidden');
+            // Hide title and description when chat opens
+            document.querySelector('h1').style.display = 'none';
+            document.querySelector('p').style.display = 'none';
+            openChatBtn.style.display = 'none';
+            fullscreenInput.focus();
+        });
+        
+        // Close fullscreen chat
+        closeFullscreen.addEventListener('click', () => {
+            isFullscreen = false;
+            fullscreenChat.classList.add('hidden');
+            // Show title and description when chat closes
+            document.querySelector('h1').style.display = 'block';
+            document.querySelector('p').style.display = 'block';
+            openChatBtn.style.display = 'inline-block';
+        });
+        
+        // Chat responses
+        const responses = [
+            "🔧 Sistem şu anda bakımda. Lütfen daha sonra tekrar deneyin.",
+            "⚠️ AI servisi geçici olarak bakımda. Yakında tekrar aktif olacak.",
+            "🛠️ Bakım çalışması devam ediyor. Anlayışınız için teşekkürler.",
+            "🔄 Sistem güncellemesi yapılıyor. Lütfen bekleyin.",
+            "⏳ Bakım modu aktif. Kısa süre sonra hizmete devam edeceğiz."
+        ];
+        
+        function addMessage(message, isUser = false, container = fullscreenMessages) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser 
+                ? 'flex justify-end mb-4 slide-up'
+                : 'flex justify-start mb-4 slide-up';
+            
+            const messageContent = document.createElement('div');
+            messageContent.className = isUser 
+                ? 'bg-blue-600 rounded-lg p-4 max-w-md text-white'
+                : 'bg-gray-700 rounded-lg p-4 max-w-md text-white';
+            
+            messageContent.textContent = message;
+            messageDiv.appendChild(messageContent);
+            
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function sendMessage(input, container) {
+            const message = input.value.trim();
+            if (message) {
+                addMessage(message, true, container);
+                input.value = '';
+                
+                setTimeout(() => {
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    addMessage(randomResponse, false, container);
+                }, 1000);
+            }
+        }
+        
+
+        
+        // Fullscreen chat functionality
+        fullscreenSend.addEventListener('click', () => sendMessage(fullscreenInput, fullscreenMessages));
+        fullscreenInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage(fullscreenInput, fullscreenMessages);
+            }
+        });
+        
+        // Navbar menu functionality - Ana Sayfa linki artık doğrudan çalışıyor
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'961d176fe1303d66',t:'MTc1Mjk1ODIzMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html> 
