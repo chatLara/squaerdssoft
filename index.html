@@ -220,138 +220,147 @@
     </main>
     
     <script>
-        // Create animated stars
-        function createStars() {
-            const container = document.getElementById('stars-container');
-            const starCount = 50;
-            
-            for (let i = 0; i < starCount; i++) {
-                const star = document.createElement('div');
-                star.className = 'star';
-                star.style.left = Math.random() * 100 + '%';
-                star.style.top = Math.random() * 100 + '%';
-                star.style.animationDelay = Math.random() * 3 + 's';
-                container.appendChild(star);
-            }
-        }
-        
-        // Initialize stars
-        createStars();
-        
-        // Mobile menu functionality
-        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-        const mobileMenu = document.getElementById('mobile-menu');
-        
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileMenu.classList.toggle('open');
-        });
-        
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
-                mobileMenu.classList.remove('open');
-            }
-        });
-        
-        // Chat functionality
-        const fullscreenChat = document.getElementById('fullscreen-chat');
-        const fullscreenMessages = document.getElementById('fullscreen-messages');
-        const fullscreenInput = document.getElementById('fullscreen-input');
-        const fullscreenSend = document.getElementById('fullscreen-send');
-        const closeFullscreen = document.getElementById('close-fullscreen');
-        
-        let isFullscreen = false;
-        
-        // Open fullscreen chat on button click
-        const openChatBtn = document.getElementById('open-chat-btn');
-        openChatBtn.addEventListener('click', () => {
-            isFullscreen = true;
-            fullscreenChat.classList.remove('hidden');
-            // Hide title and description when chat opens
-            document.querySelector('h1').style.display = 'none';
-            document.querySelector('p').style.display = 'none';
-            openChatBtn.style.display = 'none';
-            fullscreenInput.focus();
-        });
-        
-        // Close fullscreen chat
-        closeFullscreen.addEventListener('click', () => {
-            isFullscreen = false;
-            fullscreenChat.classList.add('hidden');
-            // Show title and description when chat closes
-            document.querySelector('h1').style.display = 'block';
-            document.querySelector('p').style.display = 'block';
-            openChatBtn.style.display = 'inline-block';
-        });
-        
-        // Chat responses - eski dummy mesajlar kalabilir ama artık kullanılmıyor
-        const responses = [
-            "🔧 Sistem şu anda bakımda. Lütfen daha sonra tekrar deneyin.",
-            "⚠️ AI servisi geçici olarak bakımda. Yakında tekrar aktif olacak.",
-            "🛠️ Bakım çalışması devam ediyor. Anlayışınız için teşekkürler.",
-            "🔄 Sistem güncellemesi yapılıyor. Lütfen bekleyin.",
-            "⏳ Bakım modu aktif. Kısa süre sonra hizmete devam edeceğiz."
-        ];
+  // ...önceki kodların aynen kalsın...
+
+  // Create animated stars
+  function createStars() {
+      const container = document.getElementById('stars-container');
+      const starCount = 50;
+      
+      for (let i = 0; i < starCount; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          star.style.left = Math.random() * 100 + '%';
+          star.style.top = Math.random() * 100 + '%';
+          star.style.animationDelay = Math.random() * 3 + 's';
+          container.appendChild(star);
+      }
+  }
+  
+  createStars();
+  
+  // Mobile menu toggle
+  const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  
+  mobileMenuBtn.addEventListener('click', () => {
+      mobileMenu.classList.toggle('open');
+  });
+  
+  document.addEventListener('click', (e) => {
+      if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+          mobileMenu.classList.remove('open');
+      }
+  });
+  
+  // Chat variables
+  const fullscreenChat = document.getElementById('fullscreen-chat');
+  const fullscreenMessages = document.getElementById('fullscreen-messages');
+  const fullscreenInput = document.getElementById('fullscreen-input');
+  const fullscreenSend = document.getElementById('fullscreen-send');
+  const closeFullscreen = document.getElementById('close-fullscreen');
+  const openChatBtn = document.getElementById('open-chat-btn');
+  
+  let isFullscreen = false;
+  
+  openChatBtn.addEventListener('click', () => {
+      isFullscreen = true;
+      fullscreenChat.classList.remove('hidden');
+      document.querySelector('h1').style.display = 'none';
+      document.querySelector('p').style.display = 'none';
+      openChatBtn.style.display = 'none';
+      fullscreenInput.focus();
+  });
+  
+  closeFullscreen.addEventListener('click', () => {
+      isFullscreen = false;
+      fullscreenChat.classList.add('hidden');
+      document.querySelector('h1').style.display = 'block';
+      document.querySelector('p').style.display = 'block';
+      openChatBtn.style.display = 'inline-block';
+  });
+  
+  function addMessage(message, isUser = false, container = fullscreenMessages) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = isUser 
+          ? 'flex justify-end mb-4 slide-up'
+          : 'flex justify-start mb-4 slide-up';
+      
+      const messageContent = document.createElement('div');
+      messageContent.className = isUser 
+          ? 'bg-blue-600 rounded-lg p-4 max-w-md text-white'
+          : 'bg-gray-700 rounded-lg p-4 max-w-md text-white';
+      
+      messageContent.textContent = message;
+      messageDiv.appendChild(messageContent);
+      
+      container.appendChild(messageDiv);
+      container.scrollTop = container.scrollHeight;
+  }
+  
+  // OpenAssistant API çağıran fonksiyon
+  async function sendToOpenAssistant(message) {
+      try {
+          const response = await fetch('https://api.openassistant.io/conversation', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer oag_044c8ac847dfd0c9a178376c6e90e56383d3c173aaf70e6369a450da553b11c4' // Token burada
+              },
+              body: JSON.stringify({
+                  prompt: message
+              })
+          });
+  
+          const data = await response.json();
+          const reply = data.reply || data.response || "Cevap alınamadı";
+          return reply;
+      } catch (error) {
+          return "API hatası: " + error.message;
+      }
+  }
+  
+  // Yeni sendMessage fonksiyonu
+  async function sendMessage(input, container) {
+      const message = input.value.trim();
+      if (!message) return;
+  
+      addMessage(message, true, container);
+      input.value = '';
+      input.disabled = true;
+  
+      // Geçici bekleme mesajı
+      addMessage("AI cevap bekleniyor...", false, container);
+  
+      try {
+          const reply = await sendToOpenAssistant(message);
+          
+          // "AI cevap bekleniyor..." mesajını kaldır
+          const lastMsg = container.lastElementChild;
+          if (lastMsg && lastMsg.textContent === "AI cevap bekleniyor...") {
+              container.removeChild(lastMsg);
+          }
+  
+          addMessage(reply, false, container);
+      } catch (err) {
+          addMessage('⚠️ Bir hata oluştu: ' + err.message, false, container);
+      } finally {
+          input.disabled = false;
+          input.focus();
+      }
+  }
+  
+  fullscreenSend.addEventListener('click', () => sendMessage(fullscreenInput, fullscreenMessages));
+  fullscreenInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+          sendMessage(fullscreenInput, fullscreenMessages);
+      }
+  });
+</script>
+       ];
         
         function addMessage(message, isUser = false, container = fullscreenMessages) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = isUser 
-                ? 'flex justify-end mb-4 slide-up'
-                : 'flex justify-start mb-4 slide-up';
-            
-            const messageContent = document.createElement('div');
-            messageContent.className = isUser 
-                ? 'bg-blue-600 rounded-lg p-4 max-w-md text-white'
-                : 'bg-gray-700 rounded-lg p-4 max-w-md text-white';
-            
-            messageContent.textContent = message;
-            messageDiv.appendChild(messageContent);
-            
-            container.appendChild(messageDiv);
-            container.scrollTop = container.scrollHeight;
-        }
-        
-        // ** BURASI DEĞİŞTİ, SENDMESSAGE artık API çağrıyor **
-        async function sendMessage(input, container) {
-            const message = input.value.trim();
-            if (!message) return;
 
-            addMessage(message, true, container);
-            input.value = '';
-            input.disabled = true;
-
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message })
-                });
-
-                if (!response.ok) {
-                    throw new Error('API yanıtı alınamadı');
-                }
-
-                const data = await response.json();
-                addMessage(data.reply || 'Cevap alınamadı', false, container);
-
-            } catch (err) {
-                addMessage('⚠️ Bir hata oluştu: ' + err.message, false, container);
-            } finally {
-                input.disabled = false;
-                input.focus();
-            }
-        }
-        
-        // Fullscreen chat functionality
-        fullscreenSend.addEventListener('click', () => sendMessage(fullscreenInput, fullscreenMessages));
-        fullscreenInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendMessage(fullscreenInput, fullscreenMessages);
-            }
-        });
-        
-        // Navbar menu functionality - Ana Sayfa linki açılıyor
-        // (Zaten href ile yapıldı, başka JS gerek yok)
-    </script>
 </body>
 </html>
+
