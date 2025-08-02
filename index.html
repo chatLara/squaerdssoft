@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Lara -  AI Assistant</title>
+  <title>AI Lara - Enterprise AI Assistant</title>
   <style>
     * {
       margin: 0;
@@ -813,7 +813,9 @@
 
     .plan-free { background: rgba(107, 114, 128, 0.2); color: #9ca3af; }
     .plan-vip { background: rgba(168, 85, 247, 0.2); color: #a855f7; }
+    .plan-unlimited { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
     .plan-admin { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .plan-owner { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
     @media (max-width: 768px) {
       .header {
@@ -879,7 +881,7 @@
     <div class="header-content">
       <div class="logo">
         <div class="logo-icon">&lt;/&gt;</div>
-        AI Lara 
+        AI Lara Enterprise
       </div>
       
       <div class="nav-buttons">
@@ -958,11 +960,27 @@
       <div class="account-type" id="accountType" style="display: none;">
         <button type="button" class="active" onclick="selectAccountType('free')">Ücretsiz Hesap (20 mesaj)</button>
         <button type="button" onclick="selectAccountType('vip')">VIP Hesap (40 mesaj)</button>
+        <button type="button" onclick="selectAccountType('unlimited')">Sınırsız Hesap (∞ mesaj)</button>
+        <button type="button" onclick="selectAccountType('owner')">Owner Hesabı (👑 Admin)</button>
       </div>
 
       <div class="form-group" id="vipCodeGroup" style="display: none;">
         <label class="form-label">VIP Kod (Admin'den alınmalıdır)</label>
         <input type="text" class="form-input" id="vipCodeInput" placeholder="VIP kodunuzu girin...">
+      </div>
+
+      <div class="form-group" id="unlimitedCodeGroup" style="display: none;">
+        <label class="form-label">Sınırsız Hesap Kullanıcı Adı</label>
+        <input type="text" class="form-input" id="unlimitedUsernameInput" placeholder="Kullanıcı adını girin...">
+        <label class="form-label" style="margin-top: 0.5rem;">Sınırsız Hesap Şifresi</label>
+        <input type="password" class="form-input" id="unlimitedPasswordInput" placeholder="Şifreyi girin...">
+      </div>
+
+      <div class="form-group" id="ownerCodeGroup" style="display: none;">
+        <label class="form-label">Owner Kullanıcı Adı</label>
+        <input type="text" class="form-input" id="ownerUsernameInput" placeholder="Owner kullanıcı adını girin...">
+        <label class="form-label" style="margin-top: 0.5rem;">Owner Şifresi</label>
+        <input type="password" class="form-input" id="ownerPasswordInput" placeholder="Owner şifresini girin...">
       </div>
 
       <form id="authForm">
@@ -1028,17 +1046,83 @@
     let selectedFiles = [];
     
     // Admin credentials and VIP code
-    const ADMIN_USERNAME = 'admin';
-    const ADMIN_PASSWORD = 'admin123';
+    const ADMIN_USERNAME = 'q6gew';
+    const ADMIN_PASSWORD = 'nyug-6bkg-7bf';
+    const UNLIMITED_USERNAME = 'qw3d4';
+    const UNLIMITED_PASSWORD = 'qw3d4';
     const VIP_CODE = 'a1453bc101';
+    
+    // Message reset system (7 hours = 7 * 60 * 60 * 1000 ms)
+    const MESSAGE_RESET_INTERVAL = 7 * 60 * 60 * 1000;
 
     // Initialize app
     function init() {
       const savedUser = localStorage.getItem('currentUser');
       if (savedUser) {
         currentUser = JSON.parse(savedUser);
+        checkAndResetMessages();
         showUserInterface();
       }
+      
+      // Start message reset timer
+      startMessageResetTimer();
+      
+      // Update countdown every minute
+      setInterval(() => {
+        if (currentUser && currentUser.plan !== 'admin') {
+          updateMessageCounter();
+        }
+      }, 60000);
+    }
+    
+    // Check if messages need to be reset
+    function checkAndResetMessages() {
+      const now = Date.now();
+      
+      // Check current user
+      if (currentUser && currentUser.plan !== 'admin') {
+        const lastReset = currentUser.lastMessageReset || 0;
+        if (now - lastReset >= MESSAGE_RESET_INTERVAL) {
+          resetUserMessages(currentUser);
+        }
+      }
+      
+      // Check all users in storage
+      Object.keys(users).forEach(email => {
+        const user = users[email];
+        if (user.plan !== 'admin') {
+          const lastReset = user.lastMessageReset || 0;
+          if (now - lastReset >= MESSAGE_RESET_INTERVAL) {
+            resetUserMessages(user);
+            users[email] = user;
+          }
+        }
+      });
+      
+      localStorage.setItem('aiLaraUsers', JSON.stringify(users));
+    }
+    
+    // Reset messages for a user
+    function resetUserMessages(user) {
+      const maxMessages = user.plan === 'vip' ? 40 : 20;
+      user.messagesLeft = maxMessages;
+      user.lastMessageReset = Date.now();
+      
+      if (currentUser && currentUser.email === user.email) {
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        updateMessageCounter();
+        
+        // Show notification
+        addMessage(`🔄 Mesaj hakkınız yenilendi! ${maxMessages} yeni mesaj hakkınız var.`, 'bot');
+      }
+    }
+    
+    // Start automatic message reset timer
+    function startMessageResetTimer() {
+      setInterval(() => {
+        checkAndResetMessages();
+      }, 60000); // Check every minute
     }
 
     // Authentication functions
@@ -1076,7 +1160,13 @@
       buttons.forEach(btn => btn.classList.remove('active'));
       buttons[0].classList.add('active');
       document.getElementById('vipCodeGroup').style.display = 'none';
+      document.getElementById('unlimitedCodeGroup').style.display = 'none';
+      document.getElementById('ownerCodeGroup').style.display = 'none';
       document.getElementById('vipCodeInput').value = '';
+      document.getElementById('unlimitedUsernameInput').value = '';
+      document.getElementById('unlimitedPasswordInput').value = '';
+      document.getElementById('ownerUsernameInput').value = '';
+      document.getElementById('ownerPasswordInput').value = '';
     }
 
     function switchToLogin() {
@@ -1089,13 +1179,42 @@
       buttons.forEach(btn => btn.classList.remove('active'));
       event.target.classList.add('active');
       
-      // Show/hide VIP code input
+      // Show/hide code inputs
       const vipCodeGroup = document.getElementById('vipCodeGroup');
+      const unlimitedCodeGroup = document.getElementById('unlimitedCodeGroup');
+      const ownerCodeGroup = document.getElementById('ownerCodeGroup');
+      
       if (type === 'vip') {
         vipCodeGroup.style.display = 'block';
+        unlimitedCodeGroup.style.display = 'none';
+        ownerCodeGroup.style.display = 'none';
+        document.getElementById('unlimitedUsernameInput').value = '';
+        document.getElementById('unlimitedPasswordInput').value = '';
+        document.getElementById('ownerUsernameInput').value = '';
+        document.getElementById('ownerPasswordInput').value = '';
+      } else if (type === 'unlimited') {
+        vipCodeGroup.style.display = 'none';
+        unlimitedCodeGroup.style.display = 'block';
+        ownerCodeGroup.style.display = 'none';
+        document.getElementById('vipCodeInput').value = '';
+        document.getElementById('ownerUsernameInput').value = '';
+        document.getElementById('ownerPasswordInput').value = '';
+      } else if (type === 'owner') {
+        vipCodeGroup.style.display = 'none';
+        unlimitedCodeGroup.style.display = 'none';
+        ownerCodeGroup.style.display = 'block';
+        document.getElementById('vipCodeInput').value = '';
+        document.getElementById('unlimitedUsernameInput').value = '';
+        document.getElementById('unlimitedPasswordInput').value = '';
       } else {
         vipCodeGroup.style.display = 'none';
+        unlimitedCodeGroup.style.display = 'none';
+        ownerCodeGroup.style.display = 'none';
         document.getElementById('vipCodeInput').value = '';
+        document.getElementById('unlimitedUsernameInput').value = '';
+        document.getElementById('unlimitedPasswordInput').value = '';
+        document.getElementById('ownerUsernameInput').value = '';
+        document.getElementById('ownerPasswordInput').value = '';
       }
     }
 
@@ -1119,6 +1238,21 @@
         hideAuthModal();
         showUserInterface();
         showAdminPanel();
+        return;
+      }
+
+      // Check for unlimited account login
+      if (email === UNLIMITED_USERNAME && password === UNLIMITED_PASSWORD) {
+        currentUser = {
+          email: 'unlimited',
+          plan: 'unlimited',
+          messagesLeft: Infinity,
+          isAdmin: false,
+          joinDate: new Date().toISOString()
+        };
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        hideAuthModal();
+        showUserInterface();
         return;
       }
 
@@ -1148,14 +1282,35 @@
           }
         }
 
-        const messageLimit = selectedAccountType === 'vip' ? 40 : 20;
+        // Check unlimited account credentials if unlimited account selected
+        if (selectedAccountType === 'unlimited') {
+          const unlimitedUsername = document.getElementById('unlimitedUsernameInput').value.trim();
+          const unlimitedPassword = document.getElementById('unlimitedPasswordInput').value.trim();
+          if (unlimitedUsername !== UNLIMITED_USERNAME || unlimitedPassword !== UNLIMITED_PASSWORD) {
+            alert('Geçersiz sınırsız hesap bilgileri! Lütfen doğru kullanıcı adı ve şifreyi girin.');
+            return;
+          }
+        }
+
+        // Check owner account credentials if owner account selected
+        if (selectedAccountType === 'owner') {
+          const ownerUsername = document.getElementById('ownerUsernameInput').value.trim();
+          const ownerPassword = document.getElementById('ownerPasswordInput').value.trim();
+          if (ownerUsername !== ADMIN_USERNAME || ownerPassword !== ADMIN_PASSWORD) {
+            alert('Geçersiz owner hesap bilgileri! Lütfen doğru kullanıcı adı ve şifreyi girin.');
+            return;
+          }
+        }
+
+        const messageLimit = (selectedAccountType === 'unlimited' || selectedAccountType === 'owner') ? Infinity : (selectedAccountType === 'vip' ? 40 : 20);
         const newUser = {
           email: email,
           password: password,
           plan: selectedAccountType,
           messagesLeft: messageLimit,
-          isAdmin: false,
-          joinDate: new Date().toISOString()
+          isAdmin: selectedAccountType === 'owner',
+          joinDate: new Date().toISOString(),
+          lastMessageReset: Date.now()
         };
 
         users[email] = newUser;
@@ -1166,8 +1321,12 @@
         
         hideAuthModal();
         showUserInterface();
-        const planName = selectedAccountType === 'vip' ? 'VIP' : 'Ücretsiz';
-        alert(`Kayıt başarılı! ${planName} hesabınızda ${messageLimit} mesaj hakkınız bulunmaktadır.`);
+        if (selectedAccountType === 'owner') {
+          showAdminPanel();
+        }
+        const planName = selectedAccountType === 'owner' ? 'Owner' : (selectedAccountType === 'unlimited' ? 'Sınırsız' : (selectedAccountType === 'vip' ? 'VIP' : 'Ücretsiz'));
+        const messageText = (selectedAccountType === 'unlimited' || selectedAccountType === 'owner') ? 'sınırsız' : messageLimit;
+        alert(`Kayıt başarılı! ${planName} hesabınızda ${messageText} mesaj hakkınız bulunmaktadır.`);
       }
     });
 
@@ -1180,7 +1339,9 @@
       document.getElementById('userAvatar').textContent = currentUser.email.charAt(0).toUpperCase();
       document.getElementById('userName').textContent = currentUser.email;
       document.getElementById('userPlan').textContent = currentUser.plan === 'admin' ? 'Admin' : 
-        (currentUser.plan === 'vip' ? 'VIP Hesap' : 'Ücretsiz Hesap');
+        (currentUser.plan === 'owner' ? 'Owner 👑' :
+        (currentUser.plan === 'unlimited' ? 'Sınırsız Hesap' : 
+        (currentUser.plan === 'vip' ? 'VIP Hesap' : 'Ücretsiz Hesap')));
       
       updateMessageCounter();
       
@@ -1194,8 +1355,26 @@
     }
 
     function updateMessageCounter() {
-      const remaining = currentUser.plan === 'admin' ? '∞' : currentUser.messagesLeft;
+      const remaining = (currentUser.plan === 'admin' || currentUser.plan === 'unlimited' || currentUser.plan === 'owner') ? '∞' : currentUser.messagesLeft;
       document.getElementById('remainingMessages').textContent = remaining;
+      
+      // Show time until next reset
+      if (currentUser.plan !== 'admin' && currentUser.plan !== 'unlimited' && currentUser.plan !== 'owner') {
+        const lastReset = currentUser.lastMessageReset || 0;
+        const nextReset = lastReset + MESSAGE_RESET_INTERVAL;
+        const timeLeft = nextReset - Date.now();
+        
+        if (timeLeft > 0) {
+          const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+          const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+          
+          const counterElement = document.getElementById('messageCounter');
+          counterElement.innerHTML = `
+            Kalan mesaj hakkınız: <span id="remainingMessages">${remaining}</span><br>
+            <small style="color: #9ca3af;">Yenileme: ${hours}s ${minutes}d sonra</small>
+          `;
+        }
+      }
     }
 
     function logout() {
@@ -1246,10 +1425,13 @@
       
       Object.values(users).forEach(user => {
         const row = document.createElement('tr');
+        const planName = user.plan === 'owner' ? 'Owner' : (user.plan === 'unlimited' ? 'Sınırsız' : (user.plan === 'vip' ? 'VIP' : 'Ücretsiz'));
+        const messagesDisplay = (user.plan === 'unlimited' || user.plan === 'owner') ? '∞' : user.messagesLeft;
+        
         row.innerHTML = `
           <td>${user.email}</td>
-          <td><span class="plan-badge plan-${user.plan}">${user.plan === 'vip' ? 'VIP' : 'Ücretsiz'}</span></td>
-          <td>${user.messagesLeft}</td>
+          <td><span class="plan-badge plan-${user.plan}">${planName}</span></td>
+          <td>${messagesDisplay}</td>
           <td>${new Date(user.joinDate).toLocaleDateString('tr-TR')}</td>
           <td>
             <button onclick="deleteUser('${user.email}')" style="background: #ef4444; color: white; border: none; padding: 0.25rem 0.5rem; border-radius: 4px; cursor: pointer;">Sil</button>
@@ -1348,7 +1530,7 @@
         return;
       }
 
-      if (currentUser.plan !== 'admin' && currentUser.messagesLeft <= 0) {
+      if (currentUser.plan !== 'admin' && currentUser.plan !== 'unlimited' && currentUser.plan !== 'owner' && currentUser.messagesLeft <= 0) {
         alert('Mesaj hakkınız bitmiştir. Pro hesaba yükseltme yapabilirsiniz.');
         return;
       }
@@ -1372,7 +1554,7 @@
       updateFilePreview();
 
       // Decrease message count
-      if (currentUser.plan !== 'admin') {
+      if (currentUser.plan !== 'admin' && currentUser.plan !== 'unlimited' && currentUser.plan !== 'owner') {
         currentUser.messagesLeft--;
         users[currentUser.email].messagesLeft = currentUser.messagesLeft;
         localStorage.setItem('aiLaraUsers', JSON.stringify(users));
@@ -1569,6 +1751,5 @@
       createStars();
     });
   </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9690838997d5db8d',t:'MTc1NDE2ODUyMS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9690a8a512fac28b',t:'MTc1NDE3MDA0MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
