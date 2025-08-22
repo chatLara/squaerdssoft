@@ -6,1183 +6,658 @@
     <title>AI LARA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Söhne:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
-        
-        * {
-            font-family: 'Söhne', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        :root {
+            --bg-primary: #000;
+            --text-primary: #ececf1;
+            --user-color: #030303;
+            --ai-color: #10131200;
+            --sidebar-bg: rgba(23, 23, 23, 0.8);
+            --border-color: #404040;
         }
-        
+
         body {
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff, #5f27cd, #a55eea, #26de81, #fd79a8, #fdcb6e, #6c5ce7, #74b9ff, #00b894, #e17055, #81ecec, #fab1a0, #00cec9, #55a3ff, #ff7675, #fd79a8, #fdcb6e, #e84393, #00b894);
-            background-size: 600% 600%;
-            animation: gradientFlow 20s ease infinite;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
         }
-        
-        @keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            25% { background-position: 100% 0%; }
-            50% { background-position: 100% 100%; }
-            75% { background-position: 0% 100%; }
-            100% { background-position: 0% 50%; }
+
+        /* Light Theme */
+        body.light-theme {
+            --bg-primary: #ffffff;
+            --text-primary: #1f2937;
+            --user-color: #5436da;
+            --ai-color: #10a37f;
+            --sidebar-bg: rgba(255, 255, 255, 0.9);
+            --border-color: #e5e7eb;
         }
-        
-        .chat-container {
-            max-width: 1200px;
-            height: 80vh;
-            margin: 5vh auto;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+
+        body.light-theme .shooting-line {
+            background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1), rgba(0,0,0,0.2), rgba(0,0,0,0.1), transparent);
         }
-        
-        .lplus-btn {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff, #5f27cd);
-            background-size: 300% 300%;
-            animation: gradientShift 3s ease infinite;
-            border-radius: 12px;
-            padding: 8px 16px;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s ease;
+
+        body.light-theme .input-container {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #e5e7eb;
         }
-        
-        .lplus-btn:hover {
-            transform: scale(1.05);
+
+        body.light-theme #settingsBtn:hover {
+            background-color: #f3f4f6;
         }
-        
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+
+        body.light-theme .quick-prompt {
+            border-color: #e5e7eb;
         }
-        
-        .entrance-animation {
+
+        body.light-theme .quick-prompt:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Blue Theme */
+        body.blue-theme {
+            --bg-primary: #1e3a8a;
+            --text-primary: #e0e7ff;
+            --user-color: #3b82f6;
+            --ai-color: #06b6d4;
+            --sidebar-bg: rgba(30, 58, 138, 0.9);
+            --border-color: #3b82f6;
+        }
+
+        body.blue-theme .shooting-line {
+            background: linear-gradient(90deg, transparent, rgba(59,130,246,0.4), rgba(59,130,246,0.8), rgba(59,130,246,0.4), transparent);
+        }
+
+        /* Green Theme */
+        body.green-theme {
+            --bg-primary: #064e3b;
+            --text-primary: #d1fae5;
+            --user-color: #10b981;
+            --ai-color: #34d399;
+            --sidebar-bg: rgba(6, 78, 59, 0.9);
+            --border-color: #10b981;
+        }
+
+        body.green-theme .shooting-line {
+            background: linear-gradient(90deg, transparent, rgba(16,185,129,0.4), rgba(16,185,129,0.8), rgba(16,185,129,0.4), transparent);
+        }
+
+        /* Animated Background Lines */
+        .shooting-lines {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
-            background-size: 400% 400%;
-            animation: gradientFlow 3s ease infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 9999;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
         }
-        
-        .entrance-logo {
-            animation: logoEntrance 2s ease-out forwards;
+
+        .shooting-line {
+            position: absolute;
+            width: 200px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), rgba(255,255,255,0.8), rgba(255,255,255,0.4), transparent);
+            animation: shootLine 12s linear infinite;
         }
-        
-        @keyframes logoEntrance {
+
+        @keyframes shootLine {
             0% {
+                transform: translateX(-250px);
                 opacity: 0;
-                transform: scale(0.5) rotate(-10deg);
             }
-            50% {
+            10% {
                 opacity: 1;
-                transform: scale(1.2) rotate(5deg);
+            }
+            90% {
+                opacity: 1;
             }
             100% {
-                opacity: 1;
-                transform: scale(1) rotate(0deg);
-            }
-        }
-        
-        .fade-out {
-            animation: fadeOut 0.8s ease-out forwards;
-        }
-        
-        @keyframes fadeOut {
-            to {
+                transform: translateX(calc(100vw + 250px));
                 opacity: 0;
-                visibility: hidden;
             }
         }
-        
-        .auth-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(5px);
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: var(--sidebar-bg);
+            border-right: 1px solid var(--border-color);
+            transition: transform 0.3s ease;
+            z-index: 10;
+            backdrop-filter: blur(10px);
         }
-        
-        .auth-container {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            width: 90%;
-            max-width: 400px;
-            position: relative;
-            animation: modalSlideIn 0.3s ease-out;
+
+        .sidebar-closed {
+            transform: translateX(-100%);
         }
-        
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        .close-btn {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: #f3f4f6;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background 0.2s;
-        }
-        
-        .close-btn:hover {
-            background: #e5e7eb;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar {
-            width: 4px;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .sidebar-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 2px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .chat-scroll::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        
-        .chat-scroll::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-        }
-        
+
+        /* Message Styles */
         .message-user {
-            background: #f7f7f8;
+            background-color: var(--user-color);
         }
-        
-        .message-assistant {
-            background: #ffffff;
+
+        .message-ai {
+            background-color: var(--ai-color);
         }
-        
-        .typing-dots {
-            display: inline-block;
+
+        .avatar-user {
+            background-color: var(--user-color);
         }
-        
-        .typing-dots span {
-            display: inline-block;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background-color: #666;
-            margin: 0 1px;
+
+        .avatar-ai {
+            background-color: var(--ai-color);
+        }
+
+        /* Typing Animation */
+        .typing-dot {
             animation: typing 1.4s infinite ease-in-out;
         }
         
-        .typing-dots span:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dots span:nth-child(2) { animation-delay: -0.16s; }
-        .typing-dots span:nth-child(3) { animation-delay: 0s; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(3) { animation-delay: 0s; }
         
         @keyframes typing {
-            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
+            0%, 80%, 100% { 
+                transform: scale(0.8); 
+                opacity: 0.5; 
+            }
+            40% { 
+                transform: scale(1); 
+                opacity: 1; 
+            }
+        }
+
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
         
-        .sidebar-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
         }
         
-        .sidebar-item.active {
-            background: rgba(255, 255, 255, 0.1);
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
         }
         
-        .new-chat-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
         }
-        
-        .send-btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
+
+        /* Input Area */
+        .input-container {
+            background: rgba(23, 23, 23, 0.8);
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
         }
-        
-        .send-btn:not(:disabled):hover {
-            background: #19c37d;
+
+        /* Chat Item Hover */
+        .chat-item:hover {
+            background-color: rgba(255, 255, 255, 0.05);
         }
-        
-        .mobile-menu {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease;
+
+        /* Main content full width when sidebar closed */
+        .main-content-full {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 5;
         }
-        
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-        
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .desktop-sidebar {
-                display: none;
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 20;
+            }
+            
+            .sidebar-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 15;
             }
         }
-        
-        @media (min-width: 769px) {
-            .mobile-menu-btn {
-                display: none;
-            }
+
+        /* Message Animation */
+        .message-fade-in {
+            animation: fadeInUp 0.3s ease-out;
         }
-        
-        .hidden {
-            display: none !important;
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
-<body class="text-gray-800 min-h-screen p-4">
-    <!-- Entrance Animation -->
-    <div id="entranceAnimation" class="entrance-animation">
-        <div class="entrance-logo text-center">
-            <div class="flex items-center justify-center gap-4 mb-4">
-                <div class="w-16 h-16 bg-black rounded-2xl flex items-center justify-center">
-                    <span class="text-white text-2xl font-bold">AI</span>
-                </div>
-                <h1 class="text-4xl font-bold text-white">LARA</h1>
-            </div>
-            <p class="text-white text-lg opacity-80">Premium AI Deneyimi</p>
-        </div>
-    </div>
+<body>
+    <!-- Animated Background -->
+    <div class="shooting-lines" id="shootingLines"></div>
 
-    <!-- Auth Modal -->
-    <div id="authModal" class="auth-modal hidden">
-        <div class="auth-container">
-            <button id="closeAuthModal" class="close-btn">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            
-            <div class="text-center mb-6">
-                <div class="flex items-center justify-center gap-3 mb-4">
-                    <div class="w-12 h-12 bg-black rounded-xl flex items-center justify-center">
-                        <span class="text-white text-lg font-bold">AI</span>
-                    </div>
-                    <h2 class="text-2xl font-bold">LARA</h2>
-                </div>
-                <p class="text-gray-600">Premium AI deneyimine hoş geldiniz</p>
-            </div>
-
-            <div id="authTabs" class="flex mb-6 bg-gray-100 rounded-lg p-1">
-                <button id="loginTab" class="flex-1 py-2 px-4 rounded-md bg-white shadow-sm font-medium">Giriş Yap</button>
-                <button id="registerTab" class="flex-1 py-2 px-4 rounded-md font-medium text-gray-600">Kayıt Ol</button>
-            </div>
-
-            <form id="authForm">
-                <div id="registerFields" class="hidden">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Ad Soyad</label>
-                        <input type="text" id="fullName" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                </div>
-                
-                <div class="mb-4">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">E-posta</label>
-                    <input type="email" id="email" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Şifre</label>
-                    <input type="password" id="password" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                </div>
-                
-                <button type="submit" id="authSubmit" class="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors">
-                    Giriş Yap
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Premium Code Modal -->
-    <div id="premiumModal" class="auth-modal hidden">
-        <div class="auth-container">
-            <button id="closePremiumModal" class="close-btn">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-            </button>
-            
-            <div class="text-center mb-6">
-                <div class="w-16 h-16 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                    </svg>
-                </div>
-                <h2 class="text-2xl font-bold mb-2">LPLUS Premium</h2>
-                <p class="text-gray-600">Premium kodunuzu girin</p>
-            </div>
-
-            <form id="premiumForm">
-                <div class="mb-6">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Premium Kod</label>
-                    <input type="text" id="premiumCode" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="LPLUS-XXXX-XXXX" required>
-                </div>
-                
-                <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-lg font-medium hover:from-purple-600 hover:to-pink-600 transition-all">
-                    Premium'u Etkinleştir
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Mobile Menu Overlay -->
-    <div id="mobileOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden"></div>
-    
-    <!-- Mobile Sidebar -->
-    <div id="mobileSidebar" class="mobile-menu fixed left-4 top-4 h-[calc(100vh-2rem)] w-64 bg-gray-900 text-white z-50 md:hidden rounded-2xl">
-        <div class="flex flex-col h-full">
-            <!-- Mobile Header -->
-            <div class="flex items-center justify-between p-4 border-b border-gray-700">
-                <h2 class="text-lg font-semibold">AI LARA</h2>
-                <button id="closeMobileMenu" class="p-2 hover:bg-gray-700 rounded">
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold">Ayarlar</h3>
+                <button id="closeSettings" class="p-2 hover:bg-gray-700 rounded-lg">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
             
-            <!-- Mobile New Chat -->
-            <div class="p-4">
-                <button class="new-chat-btn w-full flex items-center gap-3 p-3 rounded-lg border border-gray-600 text-sm font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Yeni sohbet
-                </button>
-            </div>
-            
-            <!-- Mobile Chat History -->
-            <div class="flex-1 overflow-y-auto sidebar-scroll px-4">
-                <div id="mobileChatHistory" class="space-y-1">
-                    <!-- Chat history items will be added here -->
-                </div>
-            </div>
-            
-            <!-- Mobile User Section -->
-            <div class="border-t border-gray-700 p-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
-                        <span id="mobileUserInitial">U</span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-sm font-medium" id="mobileUserName">Kullanıcı</div>
-                        <div class="text-xs text-gray-400" id="mobileUserPlan">Ücretsiz plan</div>
-                    </div>
-                    <div class="relative">
-                        <button id="mobileProfileMenuBtn" class="p-2 hover:bg-gray-700 rounded">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
-                            </svg>
-                        </button>
-                        <div id="mobileProfileMenu" class="hidden absolute bottom-full right-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                            <button id="mobileLoginFromProfile" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Giriş Yap</button>
-                            <button id="mobileRegisterFromProfile" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Kayıt Ol</button>
-                            <hr class="my-1">
-                            <button id="mobileLogoutBtn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Çıkış Yap</button>
-                        </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium mb-3">Tema</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="theme" value="dark" class="text-blue-600" checked>
+                            <span>🌙 Koyu Tema</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="theme" value="light" class="text-blue-600">
+                            <span>☀️ Açık Tema</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="theme" value="blue" class="text-blue-600">
+                            <span>🔵 Mavi Tema</span>
+                        </label>
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="radio" name="theme" value="green" class="text-blue-600">
+                            <span>🟢 Yeşil Tema</span>
+                        </label>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <div id="mainApp" class="chat-container bg-white hidden">
-        <div class="flex h-full">
-        <!-- Desktop Sidebar -->
-        <div class="desktop-sidebar w-64 bg-gray-900 text-white flex flex-col">
+
+    <!-- Main Container -->
+    <div class="h-screen w-screen flex flex-col">
+        <!-- Main Content -->
+        <div id="mainContent" class="flex-1 flex flex-col relative w-full">
             <!-- Header -->
-            <div class="p-4">
-                <button class="new-chat-btn w-full flex items-center gap-3 p-3 rounded-lg border border-gray-600 text-sm font-medium">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            <div class="p-4 border-b border-gray-700 flex items-center justify-center relative">
+                <h2 class="text-2xl font-bold">AI LARA</h2>
+                <button id="settingsBtn" class="absolute right-4 p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                     </svg>
-                    Yeni sohbet
                 </button>
             </div>
-            
-            <!-- Chat History -->
-            <div class="flex-1 overflow-y-auto sidebar-scroll px-4">
-                <div id="chatHistory" class="space-y-1">
-                    <!-- Chat history items will be added here -->
-                </div>
-            </div>
-            
-            <!-- User Section -->
-            <div class="border-t border-gray-700 p-4">
-                <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center text-sm font-semibold">
-                        <span id="userInitial">U</span>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-sm font-medium" id="userName">Kullanıcı</div>
-                        <div class="text-xs text-gray-400" id="userPlan">Ücretsiz plan</div>
-                    </div>
-                    <div class="relative">
-                        <button id="profileMenuBtn" class="p-2 hover:bg-gray-700 rounded">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
-                            </svg>
-                        </button>
-                        <div id="profileMenu" class="hidden absolute bottom-full right-0 mb-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2">
-                            <button id="loginFromProfile" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Giriş Yap</button>
-                            <button id="registerFromProfile" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Kayıt Ol</button>
-                            <hr class="my-1">
-                            <button id="logoutBtn" class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Çıkış Yap</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <!-- Top Bar -->
-            <div class="flex items-center justify-between p-4 border-b border-gray-200">
-                <div class="flex items-center gap-4">
-                    <button id="mobileMenuBtn" class="mobile-menu-btn p-2 hover:bg-gray-100 rounded md:hidden">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 bg-black rounded-lg flex items-center justify-center">
-                            <span class="text-white text-sm font-bold">AI</span>
-                        </div>
-                        <h1 class="text-lg font-semibold">LARA</h1>
-                    </div>
-                </div>
-                
-                <!-- LPLUS Button -->
-                <div class="flex items-center">
-                    <button id="lplusBtn" class="lplus-btn">
-                        ⭐ LPLUS ABONESİ OL
-                    </button>
-                </div>
-                
-                <div class="flex items-center gap-2">
-                    <button class="p-2 hover:bg-gray-100 rounded">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            
+
             <!-- Chat Area -->
-            <div class="flex-1 overflow-y-auto chat-scroll" id="chatArea">
-                <div id="chatContainer" class="max-w-3xl mx-auto">
-                    <!-- Welcome Message -->
-                    <div id="welcomeMessage" class="flex flex-col items-center justify-center h-full min-h-96 p-8 text-center">
-                        <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mb-6">
-                            <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                        </div>
-                        <h2 class="text-2xl font-semibold mb-4">AI LARA'ya hoş geldiniz</h2>
-                        <p class="text-gray-600 mb-8 max-w-md">
-                            Sorularınızı sorun, yaratıcı projeler üzerinde işbirliği yapın ve daha fazlası için AI asistanınızla sohbet edin.
-                        </p>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
-                            <button class="example-prompt p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left">
-                                <div class="font-medium mb-2">Örnekler</div>
-                                <div class="text-sm text-gray-600">"Bir doğum günü partisi için yaratıcı fikirler ver"</div>
+            <div id="chatArea" class="flex-1 overflow-y-auto custom-scrollbar">
+                <!-- Welcome Screen -->
+                <div id="welcomeScreen" class="flex flex-col items-center justify-center h-full p-8">
+                    <div class="text-center max-w-2xl">
+                        <h2 class="text-5xl font-bold mb-6">AI LARA</h2>
+                        <p class="text-gray-300 text-xl mb-8">Sorularınızı sorun, yaratıcı projeler üzerinde işbirliği yapın</p>
+                        
+                        <!-- Quick Prompts -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
+                            <button class="quick-prompt p-4 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors text-left" data-prompt="Bana ilginç bir hikaye yaz">
+                                <div class="font-medium mb-1">📝 Yaratıcı yazım</div>
+                                <div class="text-sm text-gray-400">Bana ilginç bir hikaye yaz</div>
                             </button>
-                            <button class="example-prompt p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left">
-                                <div class="font-medium mb-2">Yetenekler</div>
-                                <div class="text-sm text-gray-600">Sorularınızı hatırlar ve takip soruları sorabilir</div>
+                            
+                            <button class="quick-prompt p-4 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors text-left" data-prompt="Python ile basit bir hesap makinesi nasıl yaparım?">
+                                <div class="font-medium mb-1">💻 Kod yardımı</div>
+                                <div class="text-sm text-gray-400">Python ile basit bir hesap makinesi nasıl yaparım?</div>
                             </button>
-                            <button class="example-prompt p-4 border border-gray-200 rounded-lg hover:bg-gray-50 text-left">
-                                <div class="font-medium mb-2">Sınırlamalar</div>
-                                <div class="text-sm text-gray-600">Bazen yanlış bilgi üretebilir</div>
+                            
+                            <button class="quick-prompt p-4 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors text-left" data-prompt="Sağlıklı yaşam için öneriler ver">
+                                <div class="font-medium mb-1">🌱 Günlük yardım</div>
+                                <div class="text-sm text-gray-400">Sağlıklı yaşam için öneriler ver</div>
+                            </button>
+                            
+                            <button class="quick-prompt p-4 border border-gray-700 rounded-lg hover:bg-gray-800 transition-colors text-left" data-prompt="Yapay zeka nasıl çalışır?">
+                                <div class="font-medium mb-1">🧠 Öğrenme</div>
+                                <div class="text-sm text-gray-400">Yapay zeka nasıl çalışır?</div>
                             </button>
                         </div>
                     </div>
-                    
+                </div>
+
+                <!-- Messages Container -->
+                <div id="messagesContainer" class="hidden p-4 space-y-4">
                     <!-- Messages will be added here -->
                 </div>
             </div>
-            
+
             <!-- Input Area -->
-            <div class="border-t border-gray-200 p-4">
-                <div class="max-w-3xl mx-auto">
-                    <div class="relative">
-                        <textarea 
-                            id="messageInput" 
-                            placeholder="AI LARA'ya mesaj gönderin..."
-                            class="w-full p-4 pr-12 border border-gray-300 rounded-xl resize-none focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                            rows="1"
-                            style="max-height: 200px;"
-                        ></textarea>
-                        <button 
-                            id="sendButton"
-                            class="send-btn absolute right-2 bottom-2 w-8 h-8 bg-green-600 text-white rounded-lg flex items-center justify-center disabled:opacity-40"
-                            disabled
-                        >
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="text-xs text-gray-500 text-center mt-2">
-                        AI LARA hata yapabilir. Önemli bilgileri kontrol edin.
+            <div class="p-3">
+                <div class="max-w-4xl mx-auto">
+                    <div class="input-container rounded-xl p-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="flex-1">
+                                <textarea 
+                                    id="messageInput" 
+                                    placeholder="Mesajınızı yazın..." 
+                                    class="w-full bg-transparent text-white placeholder-gray-400 border-none outline-none resize-none text-sm py-1"
+                                    rows="1"
+                                ></textarea>
+                            </div>
+                            <button id="sendBtn" class="bg-white text-black p-2 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="text-xs text-gray-500 text-center mt-1">
+                            AI LARA hata yapabilir. Önemli bilgileri doğrulayın.
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    </div>
 
     <script>
-        // API configuration - Groq API key configured
+        // API Configuration
         const API_KEY = "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";
+        const API_URL = "https://api.groq.com/openai/v1/chat/completions";
+        const MODEL = "llama-3.1-8b-instant";
+
+        // Global Variables
         let currentChatId = null;
-        let chatHistory = [];
-        let conversations = {};
-        let currentUser = null;
-        let isPremium = false;
 
         // DOM Elements
-        const entranceAnimation = document.getElementById('entranceAnimation');
-        const authModal = document.getElementById('authModal');
-        const premiumModal = document.getElementById('premiumModal');
-        const mainApp = document.getElementById('mainApp');
+        const welcomeScreen = document.getElementById('welcomeScreen');
+        const messagesContainer = document.getElementById('messagesContainer');
         const messageInput = document.getElementById('messageInput');
-        const sendButton = document.getElementById('sendButton');
-        const chatContainer = document.getElementById('chatContainer');
+        const sendBtn = document.getElementById('sendBtn');
         const chatArea = document.getElementById('chatArea');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-        const mobileSidebar = document.getElementById('mobileSidebar');
-        const mobileOverlay = document.getElementById('mobileOverlay');
-        const closeMobileMenu = document.getElementById('closeMobileMenu');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsModal = document.getElementById('settingsModal');
+        const closeSettings = document.getElementById('closeSettings');
 
-        // Initialize app
-        setTimeout(() => {
-            entranceAnimation.classList.add('fade-out');
-            setTimeout(() => {
-                entranceAnimation.style.display = 'none';
-                authModal.classList.remove('hidden');
-            }, 800);
-        }, 2500);
-
-        // Profile menu functionality
-        const profileMenuBtn = document.getElementById('profileMenuBtn');
-        const profileMenu = document.getElementById('profileMenu');
-        const loginFromProfile = document.getElementById('loginFromProfile');
-        const registerFromProfile = document.getElementById('registerFromProfile');
-        const logoutBtn = document.getElementById('logoutBtn');
-
-        // Desktop profile menu
-        profileMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            profileMenu.classList.toggle('hidden');
-        });
-
-        // Mobile profile menu
-        const mobileProfileMenuBtn = document.getElementById('mobileProfileMenuBtn');
-        const mobileProfileMenu = document.getElementById('mobileProfileMenu');
-        const mobileLoginFromProfile = document.getElementById('mobileLoginFromProfile');
-        const mobileRegisterFromProfile = document.getElementById('mobileRegisterFromProfile');
-        const mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-
-        mobileProfileMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            mobileProfileMenu.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', () => {
-            profileMenu.classList.add('hidden');
-            mobileProfileMenu.classList.add('hidden');
-        });
-
-        // Desktop profile actions
-        loginFromProfile.addEventListener('click', () => {
-            isLoginMode = true;
-            loginTab.click();
-            authModal.classList.remove('hidden');
-            profileMenu.classList.add('hidden');
-        });
-
-        registerFromProfile.addEventListener('click', () => {
-            isLoginMode = false;
-            registerTab.click();
-            authModal.classList.remove('hidden');
-            profileMenu.classList.add('hidden');
-        });
-
-        logoutBtn.addEventListener('click', () => {
-            currentUser = { email: 'guest@demo.com', name: 'Misafir' };
-            isPremium = false;
-            updateUserInfo();
-            lplusBtn.innerHTML = '⭐ LPLUS ABONESİ OL';
-            lplusBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff, #5f27cd)';
-            profileMenu.classList.add('hidden');
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            createShootingLines();
+            setupEventListeners();
+            loadTheme();
             
-            // Clear all chats
-            conversations = {};
-            currentChatId = null;
-            chatHistory = [];
-            document.getElementById('chatHistory').innerHTML = '';
-            document.getElementById('mobileChatHistory').innerHTML = '';
-            chatContainer.innerHTML = '';
-            welcomeMessage.style.display = 'flex';
+            // Auto-resize textarea
+            messageInput.addEventListener('input', autoResizeTextarea);
         });
 
-        // Mobile profile actions
-        mobileLoginFromProfile.addEventListener('click', () => {
-            isLoginMode = true;
-            loginTab.click();
-            authModal.classList.remove('hidden');
-            mobileProfileMenu.classList.add('hidden');
-            closeMobileMenuFunc();
-        });
+        function initializeApp() {
+            messageInput.focus();
+        }
 
-        mobileRegisterFromProfile.addEventListener('click', () => {
-            isLoginMode = false;
-            registerTab.click();
-            authModal.classList.remove('hidden');
-            mobileProfileMenu.classList.add('hidden');
-            closeMobileMenuFunc();
-        });
-
-        mobileLogoutBtn.addEventListener('click', () => {
-            currentUser = { email: 'guest@demo.com', name: 'Misafir' };
-            isPremium = false;
-            updateUserInfo();
-            lplusBtn.innerHTML = '⭐ LPLUS ABONESİ OL';
-            lplusBtn.style.background = 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3, #54a0ff, #5f27cd)';
-            mobileProfileMenu.classList.add('hidden');
-            closeMobileMenuFunc();
-            
-            // Clear all chats
-            conversations = {};
-            currentChatId = null;
-            chatHistory = [];
-            document.getElementById('chatHistory').innerHTML = '';
-            document.getElementById('mobileChatHistory').innerHTML = '';
-            chatContainer.innerHTML = '';
-            welcomeMessage.style.display = 'flex';
-        });
-
-        // Chat deletion function
-        window.deleteChat = function(chatId) {
-            if (confirm('Bu sohbeti silmek istediğiniz emin misiniz?')) {
-                // Remove from conversations
-                delete conversations[chatId];
-                
-                // Remove from sidebar
-                document.querySelectorAll(`[data-chat-id="${chatId}"]`).forEach(item => {
-                    item.remove();
-                });
-                
-                // If this was the current chat, clear the chat area
-                if (currentChatId === chatId) {
-                    currentChatId = null;
-                    chatHistory = [];
-                    chatContainer.innerHTML = '';
-                    welcomeMessage.style.display = 'flex';
+        function setupEventListeners() {
+            // Send message
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                } else if (e.key === 'Enter' && e.shiftKey) {
+                    // Allow new line
                 }
-            }
-        };
-
-        // Auth Modal functionality
-        const loginTab = document.getElementById('loginTab');
-        const registerTab = document.getElementById('registerTab');
-        const authForm = document.getElementById('authForm');
-        const registerFields = document.getElementById('registerFields');
-        const authSubmit = document.getElementById('authSubmit');
-        const closeAuthModal = document.getElementById('closeAuthModal');
-
-        let isLoginMode = true;
-
-        loginTab.addEventListener('click', () => {
-            isLoginMode = true;
-            loginTab.classList.add('bg-white', 'shadow-sm');
-            loginTab.classList.remove('text-gray-600');
-            registerTab.classList.remove('bg-white', 'shadow-sm');
-            registerTab.classList.add('text-gray-600');
-            registerFields.classList.add('hidden');
-            authSubmit.textContent = 'Giriş Yap';
-        });
-
-        registerTab.addEventListener('click', () => {
-            isLoginMode = false;
-            registerTab.classList.add('bg-white', 'shadow-sm');
-            registerTab.classList.remove('text-gray-600');
-            loginTab.classList.remove('bg-white', 'shadow-sm');
-            loginTab.classList.add('text-gray-600');
-            registerFields.classList.remove('hidden');
-            authSubmit.textContent = 'Kayıt Ol';
-        });
-
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const fullName = document.getElementById('fullName').value;
-
-            if (isLoginMode) {
-                // Login logic
-                currentUser = { email, name: email.split('@')[0] };
-            } else {
-                // Register logic
-                currentUser = { email, name: fullName || email.split('@')[0] };
-            }
-
-            // Update UI with user info
-            updateUserInfo();
-            
-            authModal.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            messageInput.focus();
-        });
-
-        closeAuthModal.addEventListener('click', () => {
-            // For demo purposes, allow closing but show guest mode
-            currentUser = { email: 'guest@demo.com', name: 'Misafir' };
-            updateUserInfo();
-            authModal.classList.add('hidden');
-            mainApp.classList.remove('hidden');
-            messageInput.focus();
-        });
-
-        function updateUserInfo() {
-            const initial = currentUser.name.charAt(0).toUpperCase();
-            const planText = isPremium ? 'LPLUS Premium' : 'Ücretsiz plan';
-            
-            document.getElementById('userInitial').textContent = initial;
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('userPlan').textContent = planText;
-            document.getElementById('mobileUserInitial').textContent = initial;
-            document.getElementById('mobileUserName').textContent = currentUser.name;
-            document.getElementById('mobileUserPlan').textContent = planText;
-        }
-
-        // Premium Modal functionality
-        const lplusBtn = document.getElementById('lplusBtn');
-        const closePremiumModal = document.getElementById('closePremiumModal');
-        const premiumForm = document.getElementById('premiumForm');
-
-        lplusBtn.addEventListener('click', () => {
-            premiumModal.classList.remove('hidden');
-        });
-
-        closePremiumModal.addEventListener('click', () => {
-            premiumModal.classList.add('hidden');
-        });
-
-        premiumForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const code = document.getElementById('premiumCode').value;
-            
-            // Here you would validate the premium code
-            // For demo, we'll accept any code that starts with "LPLUS"
-            if (code.startsWith('LPLUS')) {
-                isPremium = true;
-                updateUserInfo();
-                lplusBtn.innerHTML = '⭐ LPLUS AKTİF';
-                lplusBtn.style.background = 'linear-gradient(45deg, #10b981, #059669)';
-                alert('🎉 LPLUS Premium başarıyla etkinleştirildi!');
-                premiumModal.classList.add('hidden');
-            } else {
-                alert('❌ Geçersiz premium kod. Lütfen geçerli bir kod girin.');
-            }
-        });
-
-        // Mobile menu functionality
-        mobileMenuBtn.addEventListener('click', () => {
-            mobileSidebar.classList.add('open');
-            mobileOverlay.classList.remove('hidden');
-        });
-
-        closeMobileMenu.addEventListener('click', closeMobileMenuFunc);
-        mobileOverlay.addEventListener('click', closeMobileMenuFunc);
-
-        function closeMobileMenuFunc() {
-            mobileSidebar.classList.remove('open');
-            mobileOverlay.classList.add('hidden');
-        }
-
-        // Auto-resize textarea
-        messageInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 200) + 'px';
-            
-            // Enable/disable send button
-            sendButton.disabled = !this.value.trim();
-        });
-
-        // Send message on Enter
-        messageInput.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                sendMessage();
-            }
-        });
-
-        // Send button click
-        sendButton.addEventListener('click', sendMessage);
-
-        // New chat buttons
-        document.querySelectorAll('.new-chat-btn').forEach(btn => {
-            btn.addEventListener('click', startNewChat);
-        });
-
-        // Example prompts
-        document.querySelectorAll('.example-prompt').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const prompt = this.querySelector('.text-sm').textContent;
-                messageInput.value = prompt;
-                sendButton.disabled = false;
-                sendMessage();
             });
-        });
+
+            // Quick prompts
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.quick-prompt')) {
+                    const prompt = e.target.closest('.quick-prompt').dataset.prompt;
+                    messageInput.value = prompt;
+                    sendMessage();
+                }
+            });
+
+            // Settings
+            settingsBtn.addEventListener('click', () => {
+                settingsModal.classList.remove('hidden');
+            });
+
+            closeSettings.addEventListener('click', () => {
+                settingsModal.classList.add('hidden');
+            });
+
+            settingsModal.addEventListener('click', (e) => {
+                if (e.target === settingsModal) {
+                    settingsModal.classList.add('hidden');
+                }
+            });
+
+            // Theme changes
+            document.addEventListener('change', (e) => {
+                if (e.target.name === 'theme') {
+                    changeTheme(e.target.value);
+                }
+            });
+        }
+
+        function createShootingLines() {
+            const container = document.getElementById('shootingLines');
+            
+            function addLine() {
+                const line = document.createElement('div');
+                line.className = 'shooting-line';
+                line.style.top = Math.random() * 100 + '%';
+                line.style.animationDelay = Math.random() * 2 + 's';
+                line.style.animationDuration = (Math.random() * 3 + 10) + 's';
+                container.appendChild(line);
+
+                setTimeout(() => {
+                    if (line.parentNode) {
+                        line.remove();
+                    }
+                }, 13000);
+            }
+
+            // Create initial lines
+            for (let i = 0; i < 4; i++) {
+                setTimeout(() => addLine(), i * 1500);
+            }
+
+            // Continue creating lines
+            setInterval(() => {
+                if (Math.random() < 0.4) {
+                    addLine();
+                }
+            }, 2500);
+        }
+
+        function autoResizeTextarea() {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 60) + 'px';
+        }
 
         function startNewChat() {
-            currentChatId = Date.now().toString();
-            chatHistory = [];
-            conversations[currentChatId] = [];
+            currentChatId = 'chat_' + Date.now();
             
-            // Clear chat area completely
-            chatContainer.innerHTML = '';
-            welcomeMessage.style.display = 'flex';
-            
-            // Remove active state from all chat items
-            document.querySelectorAll('.sidebar-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            
-            // Add to sidebar
-            addChatToSidebar(currentChatId, 'Yeni sohbet');
-            
-            // Set new chat as active
-            document.querySelectorAll(`[data-chat-id="${currentChatId}"]`).forEach(item => {
-                item.classList.add('active');
-            });
-            
-            // Close mobile menu
-            closeMobileMenuFunc();
-        }
-
-        function addChatToSidebar(chatId, title) {
-            const chatItem = document.createElement('div');
-            chatItem.className = 'sidebar-item group p-3 rounded-lg cursor-pointer text-sm relative';
-            chatItem.dataset.chatId = chatId;
-            chatItem.innerHTML = `
-                <div class="flex items-center justify-between">
-                    <span class="truncate pr-8">${title}</span>
-                    <button class="delete-chat absolute right-2 opacity-0 group-hover:opacity-100 p-1 hover:bg-gray-700 rounded transition-opacity" onclick="event.stopPropagation(); deleteChat('${chatId}')">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </button>
-                </div>
-            `;
-            
-            // Create mobile version
-            const mobileItem = chatItem.cloneNode(true);
-            
-            // Add to both desktop and mobile sidebars
-            document.getElementById('chatHistory').prepend(chatItem);
-            document.getElementById('mobileChatHistory').prepend(mobileItem);
-            
-            // Add click listeners for chat loading
-            chatItem.addEventListener('click', (e) => {
-                if (!e.target.closest('.delete-chat')) {
-                    loadChat(chatId);
-                }
-            });
-            
-            mobileItem.addEventListener('click', (e) => {
-                if (!e.target.closest('.delete-chat')) {
-                    loadChat(chatId);
-                }
-            });
-        }
-
-        function loadChat(chatId) {
-            currentChatId = chatId;
-            chatHistory = conversations[chatId] || [];
-            
-            // Clear and rebuild chat
-            chatContainer.innerHTML = '';
-            welcomeMessage.style.display = chatHistory.length === 0 ? 'flex' : 'none';
-            
-            chatHistory.forEach(message => {
-                addMessageToChat(message.content, message.role === 'user');
-            });
-            
-            // Update active state
-            document.querySelectorAll('.sidebar-item').forEach(item => {
-                item.classList.remove('active');
-            });
-            document.querySelectorAll(`[data-chat-id="${chatId}"]`).forEach(item => {
-                item.classList.add('active');
-            });
-            
-            closeMobileMenuFunc();
-        }
-
-        function addMessageToChat(content, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message-${isUser ? 'user' : 'assistant'} py-6 border-b border-gray-100`;
-            
-            // Format content for better readability
-            let formattedContent = content;
-            
-            if (!isUser) {
-                // Format AI responses with proper line breaks and structure
-                formattedContent = content
-                    // Convert double line breaks to paragraphs
-                    .split('\n\n')
-                    .map(paragraph => paragraph.trim())
-                    .filter(paragraph => paragraph.length > 0)
-                    .map(paragraph => {
-                        // Handle lists
-                        if (paragraph.includes('\n-') || paragraph.includes('\n•') || paragraph.includes('\n*')) {
-                            const lines = paragraph.split('\n');
-                            const firstLine = lines[0];
-                            const listItems = lines.slice(1).filter(line => line.trim().match(/^[-•*]/));
-                            
-                            if (listItems.length > 0) {
-                                const listHtml = listItems
-                                    .map(item => `<li class="ml-4">${item.replace(/^[-•*]\s*/, '')}</li>`)
-                                    .join('');
-                                return `<p class="mb-3">${firstLine}</p><ul class="list-disc ml-6 mb-3 space-y-1">${listHtml}</ul>`;
-                            }
-                        }
-                        
-                        // Handle numbered lists
-                        if (paragraph.includes('\n1.') || paragraph.match(/\n\d+\./)) {
-                            const lines = paragraph.split('\n');
-                            const firstLine = lines[0];
-                            const listItems = lines.slice(1).filter(line => line.trim().match(/^\d+\./));
-                            
-                            if (listItems.length > 0) {
-                                const listHtml = listItems
-                                    .map(item => `<li class="ml-4">${item.replace(/^\d+\.\s*/, '')}</li>`)
-                                    .join('');
-                                return `<p class="mb-3">${firstLine}</p><ol class="list-decimal ml-6 mb-3 space-y-1">${listHtml}</ol>`;
-                            }
-                        }
-                        
-                        // Regular paragraphs
-                        return `<p class="mb-3 leading-relaxed">${paragraph.replace(/\n/g, '<br>')}</p>`;
-                    })
-                    .join('');
-            } else {
-                // User messages - simple formatting
-                formattedContent = `<p class="leading-relaxed">${content.replace(/\n/g, '<br>')}</p>`;
-            }
-            
-            messageDiv.innerHTML = `
-                <div class="max-w-4xl mx-auto px-4">
-                    <div class="flex gap-4 items-start">
-                        <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isUser ? 'bg-green-600' : 'bg-gray-800'}">
-                            ${isUser ? 
-                                `<span class="text-white text-sm font-semibold">${currentUser.name.charAt(0).toUpperCase()}</span>` : 
-                                '<svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>'
-                            }
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="text-sm font-medium text-gray-900 mb-2">
-                                ${isUser ? currentUser.name : 'AI LARA'}
-                            </div>
-                            <div class="prose prose-sm max-w-none text-gray-800">
-                                ${formattedContent}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            chatContainer.appendChild(messageDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        function showTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typingIndicator';
-            typingDiv.className = 'message-assistant py-6';
-            typingDiv.innerHTML = `
-                <div class="max-w-3xl mx-auto px-4">
-                    <div class="flex gap-4">
-                        <div class="w-8 h-8 rounded-full bg-gray-800 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                            </svg>
-                        </div>
-                        <div class="flex-1">
-                            <div class="typing-dots">
-                                <span></span>
-                                <span></span>
-                                <span></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            chatContainer.appendChild(typingDiv);
-            chatArea.scrollTop = chatArea.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) {
-                typingIndicator.remove();
-            }
+            // Show chat area
+            welcomeScreen.classList.add('hidden');
+            messagesContainer.classList.remove('hidden');
+            messagesContainer.innerHTML = '';
         }
 
         async function sendMessage() {
             const message = messageInput.value.trim();
             if (!message) return;
 
-            // Start new chat if none exists
+            // Create new chat if none exists
             if (!currentChatId) {
                 startNewChat();
             }
 
-            // Hide welcome message
-            welcomeMessage.style.display = 'none';
+            // Disable input
+            sendBtn.disabled = true;
+            messageInput.disabled = true;
+
+            // Show chat area
+            welcomeScreen.classList.add('hidden');
+            messagesContainer.classList.remove('hidden');
 
             // Add user message
-            addMessageToChat(message, true);
-            chatHistory.push({ role: 'user', content: message });
-            conversations[currentChatId] = [...chatHistory];
+            addMessageToUI(message, 'user', true);
+            addMessageToChat(message, 'user');
 
             // Clear input
             messageInput.value = '';
-            messageInput.style.height = 'auto';
-            sendButton.disabled = true;
+            autoResizeTextarea();
 
-            // Show typing indicator
-            showTypingIndicator();
+            // No need to update chat title anymore
+
+            // Add typing indicator
+            const typingId = addTypingIndicator();
 
             try {
-                // Check if API key is set
-                if (API_KEY === "YOUR_API_KEY_HERE" || !API_KEY) {
-                    removeTypingIndicator();
-                    addMessageToChat('⚠️ API anahtarı ayarlanmamış. Lütfen geçerli bir API anahtarı ekleyin.\n\nDemo için şu yanıtı veriyorum: Merhaba! Ben AI LARA. Size nasıl yardımcı olabilirim?', false);
-                    chatHistory.push({ role: 'assistant', content: 'Demo yanıt - API anahtarı gerekli' });
-                    conversations[currentChatId] = [...chatHistory];
-                    
-                    // Update chat title if it's the first message
-                    if (chatHistory.length === 2) {
-                        const title = message.length > 30 ? message.substring(0, 30) + '...' : message;
-                        document.querySelectorAll(`[data-chat-id="${currentChatId}"] span`).forEach(span => {
-                            span.textContent = title;
-                        });
-                    }
-                    messageInput.focus();
-                    return;
-                }
-
-                const systemMessage = isPremium ? 
-                    'Sen LPLUS Premium AI asistanı LARA\'sın. SquaerdsSoft tarafından geliştirildin. Kullanıcılara Türkçe olarak gelişmiş ve detaylı yardım et. Premium özelliklerini kullan. Eğer kimliğin hakkında sorularsa, SquaerdSoft tarafından geliştirilen LARA AI asistanı olduğunu söyle.' :
-                    'Sen yardımcı bir AI asistanısın LARA. SquaerdsSoft tarafından geliştirildin. Kullanıcılara Türkçe olarak yardım et. Eğer kimliğin hakkında sorularsa, SquaerdSoft tarafından geliştirilen LARA AI asistanı olduğunu söyle.';
-
-                const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${API_KEY}`
-                    },
-                    body: JSON.stringify({
-                        model: 'llama3-8b-8192',
-                        messages: [
-                            {
-                                role: 'system',
-                                content: systemMessage
-                            },
-                            ...chatHistory
-                        ],
-                        temperature: 0.7,
-                        max_tokens: isPremium ? 4096 : 2048
-                    })
-                });
-
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status} - ${response.statusText}`);
-                }
-
-                const data = await response.json();
-                removeTypingIndicator();
-
-                if (data.choices && data.choices[0] && data.choices[0].message) {
-                    const aiResponse = data.choices[0].message.content;
-                    addMessageToChat(aiResponse, false);
-                    chatHistory.push({ role: 'assistant', content: aiResponse });
-                    conversations[currentChatId] = [...chatHistory];
-
-                    // Update chat title if it's the first message
-                    if (chatHistory.length === 2) {
-                        const title = message.length > 30 ? message.substring(0, 30) + '...' : message;
-                        document.querySelectorAll(`[data-chat-id="${currentChatId}"] span`).forEach(span => {
-                            span.textContent = title;
-                        });
-                    }
-                } else {
-                    throw new Error('Geçersiz API yanıtı');
-                }
+                const response = await sendToGroq(message);
+                removeTypingIndicator(typingId);
+                addMessageToUI(response, 'assistant', true);
+                addMessageToChat(response, 'assistant');
             } catch (error) {
-                removeTypingIndicator();
+                removeTypingIndicator(typingId);
+                addMessageToUI('Üzgünüm, bir hata oluştu. Lütfen tekrar deneyin.', 'assistant', true, true);
                 console.error('API Error:', error);
-                
-                let errorMessage = 'Üzgünüm, bir hata oluştu. ';
-                if (error.message.includes('401')) {
-                    errorMessage += 'API anahtarı geçersiz. Lütfen doğru API anahtarını kontrol edin.';
-                } else if (error.message.includes('429')) {
-                    errorMessage += 'Çok fazla istek gönderildi. Lütfen biraz bekleyin.';
-                } else if (error.message.includes('500')) {
-                    errorMessage += 'Sunucu hatası. Lütfen daha sonra tekrar deneyin.';
-                } else {
-                    errorMessage += 'Lütfen internet bağlantınızı kontrol edin ve tekrar deneyin.';
-                }
-                
-                addMessageToChat(errorMessage, false);
             }
 
+            // Re-enable input
+            sendBtn.disabled = false;
+            messageInput.disabled = false;
             messageInput.focus();
         }
+
+   function addMessageToUI(content, role, animate = false, isError = false) {
+    const messageDiv = document.createElement('div');
+    const isUser = role === 'user';
+    const name = isUser ? 'Sen' : 'AI';
+
+    // Ana container
+    messageDiv.className = `${animate ? 'message-fade-in' : ''} flex ${isUser ? 'justify-end' : 'justify-start'}`;
+
+    // İçerik kutusu
+    messageDiv.innerHTML = `
+        <div class="max-w-[80%] px-4 py-2 rounded-2xl ${isUser ? 'bg-[var(--user-color)] text-white rounded-bl-none' : 'bg-[var(--ai-color)] text-white rounded-br-none'} shadow-md">
+            <div class="text-xs font-semibold mb-1 text-${isUser ? 'right' : 'left'}">${name}</div>
+            <div class="${isError ? 'text-red-300' : ''} whitespace-pre-wrap text-sm">${content}</div>
+        </div>
+    `;
+
+    messagesContainer.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+
+        function addMessageToChat(content, role) {
+            // Messages are now only stored in UI, no persistent storage
+        }
+
+        function addTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            const id = 'typing-' + Date.now();
+            typingDiv.id = id;
+            typingDiv.className = 'mb-4';
+            
+            typingDiv.innerHTML = `
+                <div class="font-medium text-sm mb-2">AI</div>
+                <div class="flex space-x-1 items-center">
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                    <div class="w-2 h-2 bg-gray-400 rounded-full typing-dot"></div>
+                </div>
+            `;
+
+            messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
+            return id;
+        }
+
+        function removeTypingIndicator(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            chatArea.scrollTop = chatArea.scrollHeight;
+        }
+
+        function changeTheme(theme) {
+            // Remove all theme classes
+            document.body.classList.remove('light-theme', 'blue-theme', 'green-theme');
+            
+            // Add new theme class
+            if (theme !== 'dark') {
+                document.body.classList.add(theme + '-theme');
+            }
+            
+            // Save theme preference
+            localStorage.setItem('ai_lara_theme', theme);
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('ai_lara_theme') || 'dark';
+            changeTheme(savedTheme);
+            
+            // Update radio button
+            const themeRadio = document.querySelector(`input[name="theme"][value="${savedTheme}"]`);
+            if (themeRadio) {
+                themeRadio.checked = true;
+            }
+        }
+
+        // API Functions
+        async function sendToGroq(userMessage) {
+            const messages = [
+                {
+                    role: "system",
+                  content: " AI LARA adında bir yapay zeka asistanısın. Kendini Meta, OpenAI veya başka bir şirket tarafından yapılmış olarak tanıtmamalısın. Yalnızca SquaerdsSoft olarak cevap ver ve Türkçe olarak yardımcı, bilgilendirici ve dostane cevaplar ver."
+    }
+];
+
+            // No chat history context needed for single session
+
+            messages.push({
+                role: "user",
+                content: userMessage
+            });
+
+            const response = await fetch(API_URL, {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    model: MODEL,
+                    messages,
+                    temperature: 0.7,
+                    max_tokens: 1000
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return data.choices?.[0]?.message?.content ?? "";
+        }
     </script>
-<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'96b7bbdf35a4b8a1',t:'MTc1NDU3OTc3My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97310af822b0e345',t:'MTc1NTg1MTc5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
-
-
-
-
